@@ -16,8 +16,9 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     int min = -1000;
     
     float random = rand(_Buffer[index].position.xz);
-    
-    // Cyclic animation 
+
+    // 参考 https://github.com/keijiro/StickShow/blob/main/Assets/Scripts/Audience.cs#L67
+    // Cyclic animation
     float phase = 2 *  UNITY_PI * 0.5 * _Time;
     phase += snoise(float2(random * (max - min) + min, _Time * 0.27f));
 
