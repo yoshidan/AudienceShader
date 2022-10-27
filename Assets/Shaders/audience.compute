@@ -1,0 +1,34 @@
+﻿#pragma kernel CSMain
+
+#include "common.hlsl"
+
+#define UNITY_PI            3.14159265359f
+
+RWStructuredBuffer<AudienceInfo> _Buffer;
+
+float _Time;
+
+[numthreads(8,1,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    const int index = id.x;
+    int max = 1000;
+    int min = -1000;
+    
+    float random = rand(_Buffer[index].position.xz);
+    
+    // Cyclic animation 
+    float phase = 2 *  UNITY_PI * 0.5 * _Time;
+    phase += snoise(float2(random * (max - min) + min, _Time * 0.27f));
+
+    // Swing angle
+    float angle = cos(phase);
+    float angle_unsmooth = smoothstep(-1, 1, angle) * 2 - 1;
+    angle = lerp(angle, angle_unsmooth, random);
+    angle *= random * (1.0f - 0.3f) + 0.3f;
+
+    // Swing Axis
+    float dx = snoise( float2(random * (max -min) + min , _Time * 0.23f + 100));
+    
+    _Buffer[index].rotation = rotationMatrix(quaternion( angle, float3(dx, 0.0, 1.0f)));
+}
